@@ -1,0 +1,105 @@
+version: "2"
+
+services:
+  jaeger-all-in-one:
+    image: jaegertracing/all-in-one:1.53
+    ports:
+      - "16686:16686" # Jaeger UI
+      - "14268:14268" # Receive legacy OpenTracing traces, optional
+      - "4317:4317"   # OTLP gRPC receiver
+      - "4318:4318"   # OTLP HTTP receiver, not yet used by Quarkus, optional
+      - "14250:14250" # Receive from external otel-collector, optional
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+
+  kafka:
+    image: confluentinc/confluent-local:7.5.3
+      #    container_name: kafka
+    ports:
+      - "8082:8082"
+      - "9092:9092"
+      - "9101:9101"
+    expose:
+      - "29092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:29093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka:29092,CONTROLLER://kafka:29093,PLAINTEXT_HOST://0.0.0.0:9092'
+
+  init-kafka:
+    image: confluentinc/confluent-local:7.5.3
+    depends_on:
+      - kafka
+    entrypoint: [ '/bin/sh', '-c' ]
+    command: |
+      "
+      # blocks until kafka is reachable
+      kafka-topics --bootstrap-server kafka:29092 --list
+
+      echo -e 'Creating kafka topics'
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-responses --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-responses --replication-factor 1 --partitions 1
+      #quote
+
+      echo -e 'Successfully created the following topics:'
+      kafka-topics --bootstrap-server kafka:29092 --list
+      "
+
+  external-company:
+    build:
+      context: external-company
+      dockerfile: ../Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
+    depends_on:
+      - jaeger-all-in-one
+      - kafka
+
+  flights-service:
+    build:
+      context: besttravel-flights-service
+      dockerfile: ../Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
+      QUARKUS_REST_CLIENT_FLIGHT_COMPANY_API_URL: http://external-company:8080
+    depends_on:
+      - external-company
+
+  accommotations-service:
+    build:
+      context: besttravel-accommodations-service
+      dockerfile: ../Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
+      QUARKUS_REST_CLIENT_ACCOMMODATION_COMPANY_API_URL: http://external-company:8080
+    depends_on:
+      - external-company
+
+  car-rental-service:
+    build:
+      context: besttravel-car-rental-service
+      dockerfile: ../Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
+      QUARKUS_REST_CLIENT_CAR_RENTAL_COMPANY_API_URL: http://external-company:8080
+    depends_on:
+      - external-company
+
+  front-bff:
+    build:
+      context: besttravel-front-bff
+      dockerfile: ../Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
+    depends_on:
+      - flights-service
+

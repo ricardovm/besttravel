@@ -33,7 +33,7 @@ This project is a demo of a travel agency application. It is composed of some mi
 
 ## Running the application in dev mode
 
-You can run your application in dev mode that enables live coding using (run each command in a separate terminal):
+You can run this application in dev mode that enables live coding using (run each command in a separate terminal):
 
 ```shell script
 docker-compose up -d
@@ -44,6 +44,21 @@ cd besttravel-car-rental-service && ./mvnw compile quarkus:dev
 cd besttravel-booking-service && ./mvnw compile quarkus:dev
 cd external-company && ./mvnw compile quarkus:dev
 ```
+
+Open http://localhost:8080 to see the application.
+
+You can see all activities in the logs of each application. This project provides tracking by open telemetry. You can
+see the traces in the Jaeger UI: http://localhost:16686
+
+## Running with `docker-compose`
+
+Alternativelly, you can run all applications of this project with a single `docker-compose` execution:
+
+```shell script
+docker-compose -f docker-compose-full.yml up
+```
+
+This will build all modules/applications of this project and its dependencies.
 
 Open http://localhost:8080 to see the application.
 

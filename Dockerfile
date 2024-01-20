@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/openjdk/jdk:17-ubuntu AS build
+FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu AS build
 #FROM amazoncorretto:17-alpine AS build
 
 WORKDIR /build
@@ -11,6 +11,7 @@ RUN ./mvnw package -Pproduction
 FROM registry.access.redhat.com/ubi8/openjdk-17:1.15
 
 ENV LANGUAGE='en_US:en'
+ENV KAFKA_BOOTSTRAP_SERVERS=""
 
 COPY --chown=185 --from=build /build/target/quarkus-app/lib/ /deployments/lib/
 COPY --chown=185 --from=build /build/target/quarkus-app/*.jar /deployments/

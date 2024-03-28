@@ -7,8 +7,7 @@ COPY . /build
 
 RUN ./mvnw package -Pproduction
 
-
-FROM registry.access.redhat.com/ubi8/openjdk-17:1.15
+FROM registry.access.redhat.com/ubi8/openjdk-21:1.18
 
 ENV LANGUAGE='en_US:en'
 ENV KAFKA_BOOTSTRAP_SERVERS=""

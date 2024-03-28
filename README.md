@@ -25,7 +25,7 @@ This project is a demo of a travel agency application. It is composed of some mi
 
 ## Technologies
 
-- Java 17
+- Java 21
 - Quarkus
 - Kafka
 - Vaadin

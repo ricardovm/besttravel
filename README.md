@@ -55,6 +55,7 @@ see the traces in the Jaeger UI: http://localhost:16686
 Alternativelly, you can run all applications of this project with a single `docker-compose` execution:
 
 ```shell script
+docker-compose -f docker-compose-full.yml build --no-cache # just if you want to force a full rebuild
 docker-compose -f docker-compose-full.yml up
 ```
 

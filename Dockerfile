@@ -1,5 +1,4 @@
-FROM mcr.microsoft.com/openjdk/jdk:21-ubuntu AS build
-#FROM amazoncorretto:17-alpine AS build
+FROM mcr.microsoft.com/openjdk/jdk:25-ubuntu AS build
 
 WORKDIR /build
 
@@ -7,7 +6,7 @@ COPY . /build
 
 RUN ./mvnw package -Pproduction
 
-FROM registry.access.redhat.com/ubi8/openjdk-21:1.18
+FROM registry.access.redhat.com/ubi9/openjdk-25:latest
 
 ENV LANGUAGE='en_US:en'
 ENV KAFKA_BOOTSTRAP_SERVERS=""

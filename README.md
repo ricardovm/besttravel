@@ -25,10 +25,10 @@ This project is a demo of a travel agency application. It is composed of some mi
 
 ## Technologies
 
-- Java 21
-- Quarkus
-- Kafka
-- Vaadin
+- Java 25
+- Quarkus 3.32.3
+- Kafka (Confluent 7.8.0 / Kafka 3.8.x)
+- Vaadin 25
 - Docker
 
 ## Running the application in dev mode
@@ -73,5 +73,4 @@ see the traces in the Jaeger UI: http://localhost:16686
 - Implement error handling with retries and dead letter queue.
 - Implement a circuit breaker.
 - Implement centralized logging.
-- Implement a docker-compose with all microservices and Kafka.
 - Implement a protocol schema for Kafka messages.

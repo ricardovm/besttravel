@@ -43,7 +43,7 @@ public class BookingInformationService {
 
         var flight = new Flight();
         flight.setId(flightRequest.id());
-        flight.setCompany(flightRequest.flighCompany());
+        flight.setCompany(flightRequest.flightCompany());
         flight.setOrigin(flightRequest.origin());
         flight.setDestination(flightRequest.destination());
         flight.setDepartureDate(flightRequest.departureDate());

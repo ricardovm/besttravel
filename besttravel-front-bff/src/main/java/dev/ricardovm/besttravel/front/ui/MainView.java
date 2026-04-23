@@ -122,7 +122,7 @@ public class MainView extends VerticalLayout {
         flightOptionsGroup.setItemLabelGenerator(flight ->
                 "$%s: %s - From: %s To: %s - Departure: %s  Return: %s".formatted(
                         flight.price(),
-                        flight.flighCompany(),
+                        flight.flightCompany(),
                         flight.origin(),
                         flight.destination(),
                         flight.departureDate(),
@@ -292,7 +292,7 @@ public class MainView extends VerticalLayout {
         if (flight != null) {
             var flightRequest = FlightBookingRequestDTO.newBuilder()
                     .id(flight.id())
-                    .flighCompany(flight.flighCompany())
+                    .flightCompany(flight.flightCompany())
                     .origin(flight.origin())
                     .destination(flight.destination())
                     .departureDate(flight.departureDate())

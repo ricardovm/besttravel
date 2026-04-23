@@ -54,7 +54,7 @@ public class FlightQuoteService {
         return flightCompanyClient.quote(flightCompanyAPI)
                 .thenApply(price -> {
                     var flightQuoteResponse = FlightQuoteResponseDTO.newBuilder()
-                            .flighCompany(flightCompany)
+                            .flightCompany(flightCompany)
                             .origin(quoteRequest.flight().origin())
                             .destination(quoteRequest.flight().destination())
                             .departureDate(quoteRequest.flight().departureDate())

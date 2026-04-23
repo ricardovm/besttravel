@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public record FlightBookingRequestDTO(
         String id,
-        String flighCompany,
+        String flightCompany,
         String origin,
         String destination,
         LocalDate departureDate,

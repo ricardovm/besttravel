@@ -6,7 +6,7 @@ import java.util.UUID;
 
 public record FlightQuoteResponseDTO(
         String id,
-        String flighCompany,
+        String flightCompany,
         String origin,
         String destination,
         LocalDate departureDate,
@@ -14,7 +14,7 @@ public record FlightQuoteResponseDTO(
         BigDecimal price) {
     public static class Builder {
         private String id = UUID.randomUUID().toString();
-        private String flighCompany;
+        private String flightCompany;
         private String origin;
         private String destination;
         private LocalDate departureDate;
@@ -26,8 +26,8 @@ public record FlightQuoteResponseDTO(
             return this;
         }
 
-        public Builder flighCompany(String flighCompany) {
-            this.flighCompany = flighCompany;
+        public Builder flightCompany(String flightCompany) {
+            this.flightCompany = flightCompany;
             return this;
         }
 
@@ -57,7 +57,7 @@ public record FlightQuoteResponseDTO(
         }
 
         public FlightQuoteResponseDTO build() {
-            return new FlightQuoteResponseDTO(id, flighCompany, origin, destination, departureDate, returnDate, price);
+            return new FlightQuoteResponseDTO(id, flightCompany, origin, destination, departureDate, returnDate, price);
         }
     }
 

@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 public record FlightBookingRequestDTO(
         String id,
-        String flighCompany,
+        String flightCompany,
         String origin,
         String destination,
         LocalDate departureDate,
@@ -13,7 +13,7 @@ public record FlightBookingRequestDTO(
         BigDecimal price) {
     public static class Builder {
         private String id;
-        private String flighCompany;
+        private String flightCompany;
         private String origin;
         private String destination;
         private LocalDate departureDate;
@@ -25,8 +25,8 @@ public record FlightBookingRequestDTO(
             return this;
         }
 
-        public Builder flighCompany(String flighCompany) {
-            this.flighCompany = flighCompany;
+        public Builder flightCompany(String flightCompany) {
+            this.flightCompany = flightCompany;
             return this;
         }
 
@@ -56,7 +56,7 @@ public record FlightBookingRequestDTO(
         }
 
         public FlightBookingRequestDTO build() {
-            return new FlightBookingRequestDTO(id, flighCompany, origin, destination, departureDate, returnDate, price);
+            return new FlightBookingRequestDTO(id, flightCompany, origin, destination, departureDate, returnDate, price);
         }
     }
 

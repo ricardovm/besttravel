@@ -31,7 +31,7 @@ public class FlightBookingService {
     }
 
     private void book(BookingRequestDTO bookingRequest) {
-        var flightCompany = bookingRequest.flight().flighCompany();
+        var flightCompany = bookingRequest.flight().flightCompany();
         var flightCompanyAPI = flightCompany.replaceAll(" ", "-").toLowerCase();
         flightCompanyClient.book(flightCompanyAPI)
                 .thenApply(status -> createResponse(bookingRequest, status))

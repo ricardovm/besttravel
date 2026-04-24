@@ -1,5 +1,3 @@
-version: "2"
-
 services:
   jaeger-all-in-one:
     image: jaegertracing/all-in-one:1.53
@@ -14,7 +12,6 @@ services:
 
   kafka:
     image: confluentinc/confluent-local:7.8.0
-      #    container_name: kafka
     ports:
       - "8082:8082"
       - "9092:9092"
@@ -45,7 +42,6 @@ services:
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-responses-dlq --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-requests-dlq --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-responses-dlq --replication-factor 1 --partitions 1
-      #quote
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
@@ -60,7 +56,7 @@ services:
       QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
     depends_on:
       - jaeger-all-in-one
-      - kafka
+      - init-kafka
 
   flights-service:
     build:
@@ -71,9 +67,10 @@ services:
       QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
       QUARKUS_REST_CLIENT_FLIGHT_COMPANY_API_URL: http://external-company:8080
     depends_on:
+      - init-kafka
       - external-company
 
-  accommotations-service:
+  accommodations-service:
     build:
       context: besttravel-accommodations-service
       dockerfile: ../Dockerfile
@@ -82,6 +79,7 @@ services:
       QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
       QUARKUS_REST_CLIENT_ACCOMMODATION_COMPANY_API_URL: http://external-company:8080
     depends_on:
+      - init-kafka
       - external-company
 
   car-rental-service:
@@ -93,7 +91,18 @@ services:
       QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
       QUARKUS_REST_CLIENT_CAR_RENTAL_COMPANY_API_URL: http://external-company:8080
     depends_on:
+      - init-kafka
       - external-company
+
+  booking-service:
+    build:
+      context: besttravel-booking-service
+      dockerfile: ../Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
+    depends_on:
+      - init-kafka
 
   front-bff:
     build:
@@ -106,4 +115,6 @@ services:
       QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
     depends_on:
       - flights-service
-
+      - accommodations-service
+      - car-rental-service
+      - booking-service

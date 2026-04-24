@@ -26,7 +26,7 @@ public class BookingKafkaServices {
     }
 
     @Incoming("booking-responses")
-    public void receiveNookingResponse(BookingResponseDTO bookingResponse) {
+    public void receiveBookingResponse(BookingResponseDTO bookingResponse) {
         Log.infov("<< {0}", bookingResponse);
         responseEvent.fire(bookingResponse);
     }

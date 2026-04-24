@@ -41,6 +41,10 @@ services:
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-responses --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-requests --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-responses --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-responses-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-responses-dlq --replication-factor 1 --partitions 1
       #quote
 
       echo -e 'Successfully created the following topics:'

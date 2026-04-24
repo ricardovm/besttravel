@@ -35,7 +35,11 @@ public class CarRentalBookingService {
         var carCompanyAPI = carCompany.replaceAll(" ", "-").toLowerCase();
         carRentalCompanyClient.book(carCompanyAPI)
                 .thenApply(status -> createResponse(bookingRequest, status))
-                .thenAccept(response -> bookingResponseEvent.fireAsync(response));
+                .thenAccept(response -> bookingResponseEvent.fireAsync(response))
+                .exceptionally(e -> {
+                    Log.errorf(e, "Failed to book car rental for quoteId=%s", bookingRequest.quoteId());
+                    return null;
+                });
     }
 
     private BookingResponseDTO createResponse(BookingRequestDTO request, String status) {

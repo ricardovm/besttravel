@@ -35,7 +35,11 @@ public class FlightBookingService {
         var flightCompanyAPI = flightCompany.replaceAll(" ", "-").toLowerCase();
         flightCompanyClient.book(flightCompanyAPI)
                 .thenApply(status -> createResponse(bookingRequest, status))
-                .thenAccept(response -> bookingResponseEvent.fireAsync(response));
+                .thenAccept(response -> bookingResponseEvent.fireAsync(response))
+                .exceptionally(e -> {
+                    Log.errorf(e, "Failed to book flight for quoteId=%s", bookingRequest.quoteId());
+                    return null;
+                });
     }
 
     private BookingResponseDTO createResponse(BookingRequestDTO request, String status) {

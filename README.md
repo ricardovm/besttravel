@@ -70,7 +70,6 @@ see the traces in the Jaeger UI: http://localhost:16686
 
 - Implement the booking service with a real database.
 - Implement Unit and Integration tests.
-- Implement error handling with retries and dead letter queue.
 - Implement a circuit breaker.
 - Implement centralized logging.
 - Implement a protocol schema for Kafka messages.

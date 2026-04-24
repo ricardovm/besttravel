@@ -42,7 +42,12 @@ public class FlightQuoteService {
 
         for (var i = 0; i <= flightCompanyResponses; i++) {
             final var quoteResponse = quoteWithFlightcompany(quoteRequest);
-            quoteResponse.thenAccept(quoteResponseEvent::fireAsync);
+            quoteResponse
+                    .thenAccept(quoteResponseEvent::fireAsync)
+                    .exceptionally(e -> {
+                        Log.errorf(e, "Failed to get flight quote for quoteId=%s", quoteRequest.quoteId());
+                        return null;
+                    });
         }
     }
 

@@ -40,7 +40,12 @@ public class AccommodationQuoteService {
 
         for (var i = 0; i <= accommodationCompanyResponses; i++) {
             final var quoteResponse = quoteWithAccommodationCompany(quoteRequest);
-            quoteResponse.thenAccept(quoteResponseEvent::fireAsync);
+            quoteResponse
+                    .thenAccept(quoteResponseEvent::fireAsync)
+                    .exceptionally(e -> {
+                        Log.errorf(e, "Failed to get accommodation quote for quoteId=%s", quoteRequest.quoteId());
+                        return null;
+                    });
         }
     }
 

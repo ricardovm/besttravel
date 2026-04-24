@@ -42,7 +42,12 @@ public class CarRentalQuoteService {
 
         for (var i = 0; i <= carRentalCompanyResponses; i++) {
             final var quoteResponse = quoteWithCarRentalCompany(quoteRequest);
-            quoteResponse.thenAccept(quoteResponseEvent::fireAsync);
+            quoteResponse
+                    .thenAccept(quoteResponseEvent::fireAsync)
+                    .exceptionally(e -> {
+                        Log.errorf(e, "Failed to get car rental quote for quoteId=%s", quoteRequest.quoteId());
+                        return null;
+                    });
         }
     }
 

@@ -66,6 +66,15 @@ Open http://localhost:8080 to see the application.
 You can see all activities in the logs of each application. This project provides tracking by open telemetry. You can
 see the traces in the Jaeger UI: http://localhost:16686
 
+## Error handling
+
+Domain services (flights, accommodations, car-rental) implement fault tolerance for external REST calls:
+
+- Retry with exponential backoff: 3 attempts with increasing delays (starts at 500ms, doubles each time, caps at
+  10s).
+- Dead Letter Queue: failed messages are routed to a DLQ for later analysis.
+- DLQ monitoring: each service monitors its DLQ and logs failure reasons.
+
 ## Next steps
 
 - Implement the booking service with a real database.

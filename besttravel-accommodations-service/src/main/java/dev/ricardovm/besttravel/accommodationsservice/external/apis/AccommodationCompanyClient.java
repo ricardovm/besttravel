@@ -4,6 +4,7 @@ package dev.ricardovm.besttravel.accommodationsservice.external.apis;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
+import io.smallrye.faulttolerance.api.ExponentialBackoff;
 import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
@@ -17,10 +18,12 @@ public interface AccommodationCompanyClient {
     @GET
     @Path("{company}/quote")
     @Retry(maxRetries = 3, delay = 500, jitter = 100)
+    @ExponentialBackoff(factor = 2, maxDelay = 10000)
     CompletionStage<BigDecimal> quote(@PathParam("company") String company);
 
     @GET
     @Path("{company}/book")
     @Retry(maxRetries = 3, delay = 500, jitter = 100)
+    @ExponentialBackoff(factor = 2, maxDelay = 10000)
     CompletionStage<String> book(@PathParam("company") String company);
 }

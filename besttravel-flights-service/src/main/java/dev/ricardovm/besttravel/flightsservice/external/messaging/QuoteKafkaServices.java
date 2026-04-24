@@ -11,6 +11,8 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 
+import java.util.concurrent.CompletionStage;
+
 @ApplicationScoped
 public class QuoteKafkaServices {
     @Inject
@@ -21,9 +23,9 @@ public class QuoteKafkaServices {
     Event<QuoteRequestDTO> requestEvent;
 
     @Incoming("quote-requests")
-    public void sendQuoteRequest(QuoteRequestDTO quoteRequest) {
+    public CompletionStage<Void> sendQuoteRequest(QuoteRequestDTO quoteRequest) {
         Log.infov(">> {0}", quoteRequest);
-        requestEvent.fire(quoteRequest);
+        return requestEvent.fireAsync(quoteRequest).thenApply(e -> null);
     }
 
     public void receiveQuoteResponse(@ObservesAsync QuoteResponseDTO quoteResponse) {

@@ -7,7 +7,7 @@ import dev.ricardovm.besttravel.accommodationsservice.services.booking.dto.respo
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -19,7 +19,7 @@ public class AccommodationBookingService {
     @RestClient
     AccommodationCompanyClient accommodationCompanyClient;
 
-    public void bookingRequest(@Observes BookingRequestDTO bookingRequest) {
+    public void bookingRequest(@ObservesAsync BookingRequestDTO bookingRequest) {
         if (bookingRequest.accommodation() == null) {
             Log.debug(">> " + bookingRequest.quoteId() + " - No accommodation information");
             return;
@@ -36,10 +36,8 @@ public class AccommodationBookingService {
         accommodationCompanyClient.book(hotelAPI)
                 .thenApply(status -> createResponse(bookingRequest, status))
                 .thenAccept(response -> bookingResponseEvent.fireAsync(response))
-                .exceptionally(e -> {
-                    Log.errorf(e, "Failed to book accommodation for quoteId=%s", bookingRequest.quoteId());
-                    return null;
-                });
+                .toCompletableFuture()
+                .join();
     }
 
     private BookingResponseDTO createResponse(BookingRequestDTO request, String status) {

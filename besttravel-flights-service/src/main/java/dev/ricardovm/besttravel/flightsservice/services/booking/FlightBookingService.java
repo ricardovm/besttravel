@@ -7,7 +7,7 @@ import dev.ricardovm.besttravel.flightsservice.services.booking.dto.response.Fli
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -19,7 +19,7 @@ public class FlightBookingService {
     @RestClient
     FlightCompanyClient flightCompanyClient;
 
-    public void bookingRequest(@Observes BookingRequestDTO bookingRequest) {
+    public void bookingRequest(@ObservesAsync BookingRequestDTO bookingRequest) {
         if (bookingRequest.flight() == null) {
             Log.debug(">> " + bookingRequest.quoteId() + " - No flight information");
             return;
@@ -36,10 +36,8 @@ public class FlightBookingService {
         flightCompanyClient.book(flightCompanyAPI)
                 .thenApply(status -> createResponse(bookingRequest, status))
                 .thenAccept(response -> bookingResponseEvent.fireAsync(response))
-                .exceptionally(e -> {
-                    Log.errorf(e, "Failed to book flight for quoteId=%s", bookingRequest.quoteId());
-                    return null;
-                });
+                .toCompletableFuture()
+                .join();
     }
 
     private BookingResponseDTO createResponse(BookingRequestDTO request, String status) {

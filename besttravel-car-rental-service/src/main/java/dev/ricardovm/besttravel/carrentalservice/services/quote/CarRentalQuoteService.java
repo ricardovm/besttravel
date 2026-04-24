@@ -7,11 +7,14 @@ import dev.ricardovm.besttravel.carrentalservice.services.quote.dto.response.Quo
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @ApplicationScoped
@@ -26,7 +29,7 @@ public class CarRentalQuoteService {
     @RestClient
     CarRentalCompanyClient carRentalCompanyClient;
 
-    public void quoteRequest(@Observes QuoteRequestDTO quoteRequest) {
+    public void quoteRequest(@ObservesAsync QuoteRequestDTO quoteRequest) {
         if (quoteRequest.carRental() == null) {
             Log.debug(">> " + quoteRequest.quoteId() + " - No car rental information");
             return;
@@ -38,17 +41,20 @@ public class CarRentalQuoteService {
     }
 
     private void quote(QuoteRequestDTO quoteRequest) {
-        final var carRentalCompanyResponses = new Random().nextInt(3);
+        final var count = new Random().nextInt(3) + 1;
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-        for (var i = 0; i <= carRentalCompanyResponses; i++) {
-            final var quoteResponse = quoteWithCarRentalCompany(quoteRequest);
-            quoteResponse
+        for (var i = 0; i < count; i++) {
+            futures.add(quoteWithCarRentalCompany(quoteRequest)
                     .thenAccept(quoteResponseEvent::fireAsync)
                     .exceptionally(e -> {
                         Log.errorf(e, "Failed to get car rental quote for quoteId=%s", quoteRequest.quoteId());
                         return null;
-                    });
+                    })
+                    .toCompletableFuture());
         }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
     private CompletionStage<QuoteResponseDTO> quoteWithCarRentalCompany(QuoteRequestDTO quoteRequest) {

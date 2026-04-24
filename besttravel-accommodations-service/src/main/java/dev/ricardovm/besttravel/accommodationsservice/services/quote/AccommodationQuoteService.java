@@ -7,11 +7,14 @@ import dev.ricardovm.besttravel.accommodationsservice.services.quote.dto.respons
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
-import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.event.ObservesAsync;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 @ApplicationScoped
@@ -24,7 +27,7 @@ public class AccommodationQuoteService {
     @RestClient
     AccommodationCompanyClient accommodationCompanyClient;
 
-    public void quoteRequest(@Observes QuoteRequestDTO quoteRequest) {
+    public void quoteRequest(@ObservesAsync QuoteRequestDTO quoteRequest) {
         if (quoteRequest.accommodation() == null) {
             Log.debug(">> " + quoteRequest.quoteId() + " - No accommodation information");
             return;
@@ -36,17 +39,20 @@ public class AccommodationQuoteService {
     }
 
     private void quote(QuoteRequestDTO quoteRequest) {
-        final var accommodationCompanyResponses = new Random().nextInt(3);
+        final var count = new Random().nextInt(3) + 1;
+        List<CompletableFuture<Void>> futures = new ArrayList<>();
 
-        for (var i = 0; i <= accommodationCompanyResponses; i++) {
-            final var quoteResponse = quoteWithAccommodationCompany(quoteRequest);
-            quoteResponse
+        for (var i = 0; i < count; i++) {
+            futures.add(quoteWithAccommodationCompany(quoteRequest)
                     .thenAccept(quoteResponseEvent::fireAsync)
                     .exceptionally(e -> {
                         Log.errorf(e, "Failed to get accommodation quote for quoteId=%s", quoteRequest.quoteId());
                         return null;
-                    });
+                    })
+                    .toCompletableFuture());
         }
+
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).join();
     }
 
     private CompletionStage<QuoteResponseDTO> quoteWithAccommodationCompany(QuoteRequestDTO quoteRequest) {

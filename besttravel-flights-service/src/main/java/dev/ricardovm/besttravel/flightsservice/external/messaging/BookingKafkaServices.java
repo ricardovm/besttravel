@@ -11,6 +11,8 @@ import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 
+import java.util.concurrent.CompletionStage;
+
 @ApplicationScoped
 public class BookingKafkaServices {
     @Inject
@@ -21,9 +23,9 @@ public class BookingKafkaServices {
     Event<BookingRequestDTO> requestEvent;
 
     @Incoming("booking-requests")
-    public void sendBookingRequest(BookingRequestDTO bookingRequest) {
+    public CompletionStage<Void> sendBookingRequest(BookingRequestDTO bookingRequest) {
         Log.infov(">> {0}", bookingRequest);
-        requestEvent.fire(bookingRequest);
+        return requestEvent.fireAsync(bookingRequest).thenApply(e -> null);
     }
 
     public void receiveBookingResponse(@ObservesAsync BookingResponseDTO bookingResponse) {

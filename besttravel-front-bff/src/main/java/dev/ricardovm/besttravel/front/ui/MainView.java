@@ -9,6 +9,7 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -240,6 +241,12 @@ public class MainView extends VerticalLayout {
     }
 
     private void addQuote(QuoteResponseDTO quoteResponseDTO) {
+        if (Boolean.TRUE.equals(quoteResponseDTO.timedOut())) {
+            Notification.show("Quote request timed out. Try again.", 5000, Notification.Position.MIDDLE);
+            quoteButton.setEnabled(true);
+            return;
+        }
+
         if (quoteResponseDTO.flight() != null) {
             addFlightQuote(quoteResponseDTO);
         }
@@ -335,6 +342,11 @@ public class MainView extends VerticalLayout {
     }
 
     private void addBooking(BookingResponseDTO bookingResponse) {
+        if (Boolean.TRUE.equals(bookingResponse.timedOut())) {
+            bookingLayout.add(new Paragraph("Booking request timed out."));
+            return;
+        }
+
         if (bookingResponse.flight() != null) {
             bookingLayout.add(new Paragraph("Flight: " + bookingResponse.flight().status()));
         }

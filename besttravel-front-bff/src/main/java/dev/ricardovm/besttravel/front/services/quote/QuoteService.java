@@ -1,15 +1,18 @@
 package dev.ricardovm.besttravel.front.services.quote;
 
+import dev.ricardovm.besttravel.front.services.common.TimedCallbackRegistry;
 import dev.ricardovm.besttravel.front.services.quote.dto.request.QuoteRequestDTO;
 import dev.ricardovm.besttravel.front.services.quote.dto.response.QuoteResponseDTO;
 import io.quarkus.logging.Log;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
+import java.time.Duration;
 import java.util.function.Consumer;
 
 @ApplicationScoped
@@ -17,13 +20,28 @@ public class QuoteService {
     @Inject
     Event<QuoteRequestDTO> requestEvent;
 
-    private ConcurrentMap<String, Consumer<QuoteResponseDTO>> callbacks = new ConcurrentHashMap<>();
+    @ConfigProperty(name = "besttravel.quote.callback.ttl-minutes", defaultValue = "5")
+    int callbackTtlMinutes;
+
+    private TimedCallbackRegistry<QuoteResponseDTO> callbacks;
+
+    @PostConstruct
+    void init() {
+        callbacks = new TimedCallbackRegistry<>(
+                Duration.ofMinutes(callbackTtlMinutes),
+                QuoteResponseDTO::timeout);
+    }
+
+    @PreDestroy
+    void destroy() {
+        callbacks.shutdown();
+    }
 
     public void sendQuoteRequest(QuoteRequestDTO quoteRequest, Consumer<QuoteResponseDTO> callback) {
         Log.infov(">> {0}", quoteRequest);
 
         if (callback != null) {
-            callbacks.put(quoteRequest.quoteId(), callback);
+            callbacks.register(quoteRequest.quoteId(), expectedResponses(quoteRequest), callback);
         }
 
         requestEvent.fire(quoteRequest);
@@ -32,13 +50,28 @@ public class QuoteService {
     public void receiveQuoteResponse(@Observes QuoteResponseDTO quoteResponse) {
         Log.infov("<< {0}", quoteResponse);
 
-        var callback = callbacks.get(quoteResponse.quoteId());
-
-        if (callback != null) {
+        if (callbacks.deliver(quoteResponse.quoteId(), quoteResponse)) {
             Log.info("++ Callback found");
-            callback.accept(quoteResponse);
         } else {
             Log.infov("++ Callback {0} not found", quoteResponse.quoteId());
         }
+    }
+
+    private int expectedResponses(QuoteRequestDTO quoteRequest) {
+        var expectedResponses = 0;
+
+        if (quoteRequest.flight() != null) {
+            expectedResponses++;
+        }
+
+        if (quoteRequest.accommodation() != null) {
+            expectedResponses++;
+        }
+
+        if (quoteRequest.carRental() != null) {
+            expectedResponses++;
+        }
+
+        return expectedResponses;
     }
 }

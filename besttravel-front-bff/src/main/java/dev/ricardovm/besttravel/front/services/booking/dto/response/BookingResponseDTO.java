@@ -4,5 +4,9 @@ public record BookingResponseDTO(
         String bookingId,
         FlightBookingResponseDTO flight,
         AccommodationBookingResponseDTO accommodation,
-        CarRentalBookingResponseDTO carRental) {
+        CarRentalBookingResponseDTO carRental,
+        Boolean timedOut) {
+    public static BookingResponseDTO timeout(String bookingId) {
+        return new BookingResponseDTO(bookingId, null, null, null, true);
+    }
 }

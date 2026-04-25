@@ -16,7 +16,7 @@ public class BookingKafkaServices {
     @Inject
     Event<BookingResponseDTO> responseEvent;
 
-    @Incoming("booking-requests")
+    @Incoming("booking-commands")
     public void receiveBookingRequest(BookingRequestDTO bookingRequest) {
         Log.infov("<< {0}", bookingRequest);
         requestEvent.fire(bookingRequest);

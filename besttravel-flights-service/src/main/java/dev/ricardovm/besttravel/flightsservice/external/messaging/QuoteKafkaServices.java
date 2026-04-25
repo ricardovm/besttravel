@@ -22,7 +22,7 @@ public class QuoteKafkaServices {
     @Inject
     Event<QuoteRequestDTO> requestEvent;
 
-    @Incoming("quote-requests")
+    @Incoming("flight-quote-requests")
     public CompletionStage<Void> sendQuoteRequest(QuoteRequestDTO quoteRequest) {
         Log.infov(">> {0}", quoteRequest);
         return requestEvent.fireAsync(quoteRequest).thenApply(e -> null);

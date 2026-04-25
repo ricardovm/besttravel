@@ -30,11 +30,6 @@ public class FlightQuoteService {
     FlightCompanyClient flightCompanyClient;
 
     public void quoteRequest(@ObservesAsync QuoteRequestDTO quoteRequest) {
-        if (quoteRequest.flight() == null) {
-            Log.debug(">> " + quoteRequest.quoteId() + " - No flight information");
-            return;
-        }
-
         Log.infov(">> {0}", quoteRequest);
 
         quote(quoteRequest);

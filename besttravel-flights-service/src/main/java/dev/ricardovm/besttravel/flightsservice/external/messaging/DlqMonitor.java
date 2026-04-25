@@ -11,15 +11,15 @@ import java.util.concurrent.CompletionStage;
 @ApplicationScoped
 public class DlqMonitor {
 
-    @Incoming("quote-requests-dlq")
+    @Incoming("flight-quote-requests-dlq")
     public CompletionStage<Void> onQuoteDlq(Message<String> message) {
-        logDlq("quote-requests-dlq", message);
+        logDlq("flight-quote-requests-dlq", message);
         return message.ack();
     }
 
-    @Incoming("booking-requests-dlq")
+    @Incoming("flight-booking-requests-dlq")
     public CompletionStage<Void> onBookingDlq(Message<String> message) {
-        logDlq("booking-requests-dlq", message);
+        logDlq("flight-booking-requests-dlq", message);
         return message.ack();
     }
 

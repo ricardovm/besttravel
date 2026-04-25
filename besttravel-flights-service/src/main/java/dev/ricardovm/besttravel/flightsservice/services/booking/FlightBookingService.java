@@ -20,11 +20,6 @@ public class FlightBookingService {
     FlightCompanyClient flightCompanyClient;
 
     public void bookingRequest(@ObservesAsync BookingRequestDTO bookingRequest) {
-        if (bookingRequest.flight() == null) {
-            Log.debug(">> " + bookingRequest.quoteId() + " - No flight information");
-            return;
-        }
-
         Log.infov(">> {0}", bookingRequest);
 
         book(bookingRequest);

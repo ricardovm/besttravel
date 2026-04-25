@@ -28,11 +28,6 @@ public class AccommodationQuoteService {
     AccommodationCompanyClient accommodationCompanyClient;
 
     public void quoteRequest(@ObservesAsync QuoteRequestDTO quoteRequest) {
-        if (quoteRequest.accommodation() == null) {
-            Log.debug(">> " + quoteRequest.quoteId() + " - No accommodation information");
-            return;
-        }
-
         Log.infov(">> {0}", quoteRequest);
 
         quote(quoteRequest);

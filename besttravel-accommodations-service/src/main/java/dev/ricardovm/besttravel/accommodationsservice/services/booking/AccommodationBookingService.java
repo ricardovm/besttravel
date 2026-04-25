@@ -20,11 +20,6 @@ public class AccommodationBookingService {
     AccommodationCompanyClient accommodationCompanyClient;
 
     public void bookingRequest(@ObservesAsync BookingRequestDTO bookingRequest) {
-        if (bookingRequest.accommodation() == null) {
-            Log.debug(">> " + bookingRequest.quoteId() + " - No accommodation information");
-            return;
-        }
-
         Log.infov(">> {0}", bookingRequest);
 
         book(bookingRequest);

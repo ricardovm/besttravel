@@ -22,7 +22,7 @@ public class BookingKafkaServices {
     @Inject
     Event<BookingRequestDTO> requestEvent;
 
-    @Incoming("booking-requests")
+    @Incoming("accommodation-booking-requests")
     public CompletionStage<Void> sendBookingRequest(BookingRequestDTO bookingRequest) {
         Log.infov(">> {0}", bookingRequest);
         return requestEvent.fireAsync(bookingRequest).thenApply(e -> null);

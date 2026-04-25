@@ -1,0 +1,5 @@
+html {
+    /*color-scheme: light dark;*/
+    --aura-accent-color-light: var(--aura-blue);
+    --aura-accent-color-dark: var(--aura-blue);
+}

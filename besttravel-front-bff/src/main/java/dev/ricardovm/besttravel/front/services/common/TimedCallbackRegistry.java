@@ -27,12 +27,12 @@ public class TimedCallbackRegistry<T> {
         scheduler.shutdown();
     }
 
-    public void register(String id, int expectedResponses, Consumer<T> callback) {
-        if (callback == null || expectedResponses <= 0) {
+    public void register(String id, Consumer<T> callback) {
+        if (callback == null) {
             return;
         }
 
-        var entry = new CallbackEntry<>(callback, expectedResponses);
+        var entry = new CallbackEntry<>(callback);
         var previous = callbacks.put(id, entry);
 
         if (previous != null) {
@@ -52,11 +52,7 @@ public class TimedCallbackRegistry<T> {
             return false;
         }
 
-        var completed = entry.deliver(response);
-
-        if (completed) {
-            callbacks.remove(id, entry);
-        }
+        entry.deliver(response);
 
         return true;
     }
@@ -78,34 +74,21 @@ public class TimedCallbackRegistry<T> {
 
     private static final class CallbackEntry<T> {
         private final Consumer<T> callback;
-        private int remainingResponses;
         private boolean closed;
         private ScheduledFuture<?> expirationTask;
 
-        private CallbackEntry(Consumer<T> callback, int remainingResponses) {
+        private CallbackEntry(Consumer<T> callback) {
             this.callback = callback;
-            this.remainingResponses = remainingResponses;
         }
 
         private synchronized void scheduleExpiration(ScheduledFuture<?> expirationTask) {
             this.expirationTask = expirationTask;
         }
 
-        private synchronized boolean deliver(T response) {
-            if (closed) {
-                return false;
+        private synchronized void deliver(T response) {
+            if (!closed) {
+                callback.accept(response);
             }
-
-            callback.accept(response);
-            remainingResponses--;
-
-            if (remainingResponses <= 0) {
-                closed = true;
-                cancelExpiration();
-                return true;
-            }
-
-            return false;
         }
 
         private synchronized void expire(T timeoutResponse) {

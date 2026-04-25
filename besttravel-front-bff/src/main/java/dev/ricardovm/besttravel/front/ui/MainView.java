@@ -76,6 +76,14 @@ public class MainView extends VerticalLayout {
 
     private final VerticalLayout bookingLayout = new VerticalLayout();
 
+    private boolean flightBookingRequested;
+    private boolean accommodationBookingRequested;
+    private boolean carRentalBookingRequested;
+
+    private boolean flightBookingReceived;
+    private boolean accommodationBookingReceived;
+    private boolean carRentalBookingReceived;
+
     public MainView() {
         var title = new H1("Best Travel");
 
@@ -242,7 +250,13 @@ public class MainView extends VerticalLayout {
 
     private void addQuote(QuoteResponseDTO quoteResponseDTO) {
         if (Boolean.TRUE.equals(quoteResponseDTO.timedOut())) {
-            Notification.show("Quote request timed out. Try again.", 5000, Notification.Position.MIDDLE);
+            var allTypesReceived =
+                    (!flightCheckBox.getValue() || !flightQuotes.isEmpty()) &&
+                    (!accommodationCheckBox.getValue() || !accommodationQuotes.isEmpty()) &&
+                    (!carRentalCheckBox.getValue() || !carRentalQuotes.isEmpty());
+            if (!allTypesReceived) {
+                Notification.show("Quote request timed out. Try again.", 5000, Notification.Position.MIDDLE);
+            }
             quoteButton.setEnabled(true);
             return;
         }
@@ -335,6 +349,13 @@ public class MainView extends VerticalLayout {
             bookingRequestBuilder.carRental(carRentalRequest);
         }
 
+        flightBookingRequested = flight != null;
+        accommodationBookingRequested = accommodation != null;
+        carRentalBookingRequested = carRental != null;
+        flightBookingReceived = false;
+        accommodationBookingReceived = false;
+        carRentalBookingReceived = false;
+
         var ui = UI.getCurrent();
         Consumer<BookingResponseDTO> callback = bookingResponse -> ui.access(() -> addBooking(bookingResponse));
 
@@ -343,19 +364,28 @@ public class MainView extends VerticalLayout {
 
     private void addBooking(BookingResponseDTO bookingResponse) {
         if (Boolean.TRUE.equals(bookingResponse.timedOut())) {
-            bookingLayout.add(new Paragraph("Booking request timed out."));
+            var allReceived =
+                    (!flightBookingRequested || flightBookingReceived) &&
+                    (!accommodationBookingRequested || accommodationBookingReceived) &&
+                    (!carRentalBookingRequested || carRentalBookingReceived);
+            if (!allReceived) {
+                bookingLayout.add(new Paragraph("Booking request timed out."));
+            }
             return;
         }
 
         if (bookingResponse.flight() != null) {
+            flightBookingReceived = true;
             bookingLayout.add(new Paragraph("Flight: " + bookingResponse.flight().status()));
         }
 
         if (bookingResponse.accommodation() != null) {
+            accommodationBookingReceived = true;
             bookingLayout.add(new Paragraph("Accommodation: " + bookingResponse.accommodation().status()));
         }
 
         if (bookingResponse.carRental() != null) {
+            carRentalBookingReceived = true;
             bookingLayout.add(new Paragraph("Car rental: " + bookingResponse.carRental().status()));
         }
     }

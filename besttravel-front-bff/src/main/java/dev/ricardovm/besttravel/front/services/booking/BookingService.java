@@ -20,15 +20,15 @@ public class BookingService {
     @Inject
     Event<BookingRequestDTO> requestEvent;
 
-    @ConfigProperty(name = "besttravel.booking.callback.ttl-minutes", defaultValue = "3")
-    int callbackTtlMinutes;
+    @ConfigProperty(name = "besttravel.booking.callback.ttl-seconds", defaultValue = "30")
+    int callbackTtlSeconds;
 
     private TimedCallbackRegistry<BookingResponseDTO> callbacks;
 
     @PostConstruct
     void init() {
         callbacks = new TimedCallbackRegistry<>(
-                Duration.ofMinutes(callbackTtlMinutes),
+                Duration.ofSeconds(callbackTtlSeconds),
                 BookingResponseDTO::timeout);
     }
 
@@ -41,7 +41,7 @@ public class BookingService {
         Log.infov(">> {0}", bookingRequest);
 
         if (callback != null) {
-            callbacks.register(bookingRequest.bookingId(), expectedResponses(bookingRequest), callback);
+            callbacks.register(bookingRequest.bookingId(), callback);
         }
 
         requestEvent.fire(bookingRequest);
@@ -55,23 +55,5 @@ public class BookingService {
         } else {
             Log.infov("++ Callback {0} not found", bookingResponse.bookingId());
         }
-    }
-
-    private int expectedResponses(BookingRequestDTO bookingRequest) {
-        var expectedResponses = 0;
-
-        if (bookingRequest.flight() != null) {
-            expectedResponses++;
-        }
-
-        if (bookingRequest.accommodation() != null) {
-            expectedResponses++;
-        }
-
-        if (bookingRequest.carRental() != null) {
-            expectedResponses++;
-        }
-
-        return expectedResponses;
     }
 }

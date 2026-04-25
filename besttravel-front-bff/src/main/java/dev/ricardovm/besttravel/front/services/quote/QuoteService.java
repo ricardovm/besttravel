@@ -20,15 +20,15 @@ public class QuoteService {
     @Inject
     Event<QuoteRequestDTO> requestEvent;
 
-    @ConfigProperty(name = "besttravel.quote.callback.ttl-minutes", defaultValue = "5")
-    int callbackTtlMinutes;
+    @ConfigProperty(name = "besttravel.quote.callback.ttl-seconds", defaultValue = "30")
+    int callbackTtlSeconds;
 
     private TimedCallbackRegistry<QuoteResponseDTO> callbacks;
 
     @PostConstruct
     void init() {
         callbacks = new TimedCallbackRegistry<>(
-                Duration.ofMinutes(callbackTtlMinutes),
+                Duration.ofSeconds(callbackTtlSeconds),
                 QuoteResponseDTO::timeout);
     }
 
@@ -41,7 +41,7 @@ public class QuoteService {
         Log.infov(">> {0}", quoteRequest);
 
         if (callback != null) {
-            callbacks.register(quoteRequest.quoteId(), expectedResponses(quoteRequest), callback);
+            callbacks.register(quoteRequest.quoteId(), callback);
         }
 
         requestEvent.fire(quoteRequest);
@@ -55,23 +55,5 @@ public class QuoteService {
         } else {
             Log.infov("++ Callback {0} not found", quoteResponse.quoteId());
         }
-    }
-
-    private int expectedResponses(QuoteRequestDTO quoteRequest) {
-        var expectedResponses = 0;
-
-        if (quoteRequest.flight() != null) {
-            expectedResponses++;
-        }
-
-        if (quoteRequest.accommodation() != null) {
-            expectedResponses++;
-        }
-
-        if (quoteRequest.carRental() != null) {
-            expectedResponses++;
-        }
-
-        return expectedResponses;
     }
 }

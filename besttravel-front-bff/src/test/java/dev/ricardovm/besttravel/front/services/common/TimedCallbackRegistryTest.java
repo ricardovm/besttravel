@@ -12,16 +12,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class TimedCallbackRegistryTest {
     @Test
-    void removesCallbackAfterExpectedResponses() {
+    void deliversAllResponsesUntilExpiry() {
         var received = new ArrayList<String>();
         var registry = new TimedCallbackRegistry<String>(Duration.ofSeconds(5), id -> "timeout:" + id);
 
-        registry.register("quote-1", 2, received::add);
+        registry.register("quote-1", received::add);
 
         assertTrue(registry.deliver("quote-1", "first"));
         assertTrue(registry.deliver("quote-1", "second"));
-        assertFalse(registry.deliver("quote-1", "late"));
-        assertEquals(List.of("first", "second"), received);
+        assertTrue(registry.deliver("quote-1", "third"));
+        assertEquals(List.of("first", "second", "third"), received);
     }
 
     @Test
@@ -29,7 +29,7 @@ class TimedCallbackRegistryTest {
         var received = new ArrayList<String>();
         var registry = new TimedCallbackRegistry<String>(Duration.ofMillis(50), id -> "timeout:" + id);
 
-        registry.register("quote-2", 1, received::add);
+        registry.register("quote-2", received::add);
 
         Thread.sleep(200L);
 

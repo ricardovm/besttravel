@@ -14,7 +14,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 @ApplicationScoped
 public class BookingKafkaServices {
     @Inject
-    @Channel("booking-requests")
+    @Channel("booking-commands")
     Emitter<BookingRequestDTO> emitter;
 
     @Inject

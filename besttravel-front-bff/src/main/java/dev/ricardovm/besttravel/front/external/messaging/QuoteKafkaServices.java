@@ -14,7 +14,7 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 @ApplicationScoped
 public class QuoteKafkaServices {
     @Inject
-    @Channel("quote-requests")
+    @Channel("quote-commands")
     Emitter<QuoteRequestDTO> emitter;
 
     @Inject

@@ -1,15 +1,17 @@
 package dev.ricardovm.besttravel.front.ui;
 
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
@@ -35,6 +37,7 @@ import dev.ricardovm.besttravel.front.services.quote.dto.response.QuoteResponseD
 import jakarta.inject.Inject;
 
 import java.time.LocalDate;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -48,6 +51,10 @@ public class MainView extends VerticalLayout {
     @Inject
     BookingService bookingService;
 
+    private static final String FLIGHT = "Flight";
+    private static final String ACCOMMODATION = "Accommodation";
+    private static final String CAR_RENTAL = "Car rental";
+
     private String quoteId;
     private final ConcurrentMap<String, FlightQuoteResponseDTO> flightQuotes = new ConcurrentHashMap<>();
     private final ListDataProvider<FlightQuoteResponseDTO> flightQuotesProvider = new ListDataProvider<>(flightQuotes.values());
@@ -56,9 +63,7 @@ public class MainView extends VerticalLayout {
     private final ConcurrentMap<String, CarRentalQuoteResponseDTO> carRentalQuotes = new ConcurrentHashMap<>();
     private final ListDataProvider<CarRentalQuoteResponseDTO> carRentalQuotesProvider = new ListDataProvider<>(carRentalQuotes.values());
 
-    private final Checkbox flightCheckBox = new Checkbox("Flight", true);
-    private final Checkbox accommodationCheckBox = new Checkbox("Accommodation", true);
-    private final Checkbox carRentalCheckBox = new Checkbox("Car rental", true);
+    private final CheckboxGroup<String> servicesGroup = new CheckboxGroup<>("Services");
 
     private final Button quoteButton = new Button("Quote");
     private final Button bookButton = new Button("Book now!");
@@ -85,6 +90,11 @@ public class MainView extends VerticalLayout {
     private boolean carRentalBookingReceived;
 
     public MainView() {
+        setSizeFull();
+        setAlignItems(Alignment.CENTER);
+        setPadding(false);
+        setSpacing(false);
+
         var title = new H1("Best Travel");
 
         var departureField = new TextField("Departure");
@@ -95,8 +105,6 @@ public class MainView extends VerticalLayout {
         destinationField.setValue("Amsterdam");
         destinationField.setReadOnly(true);
 
-        var travelCitiesLayout = new HorizontalLayout(departureField, destinationField);
-
         var departureDateField = new DatePicker("Departure date");
         departureDateField.setValue(LocalDate.now().plusDays(7));
         departureDateField.setReadOnly(true);
@@ -105,27 +113,33 @@ public class MainView extends VerticalLayout {
         returnDateField.setValue(LocalDate.now().plusDays(14));
         returnDateField.setReadOnly(true);
 
-        var travelDatesLayout = new HorizontalLayout(departureDateField, returnDateField);
+        var travelForm = new FormLayout();
+        travelForm.setResponsiveSteps(
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 2));
+        travelForm.add(departureField, destinationField, departureDateField, returnDateField);
 
-        flightCheckBox.addValueChangeListener(e -> refreshQuoteButton());
-        accommodationCheckBox.addValueChangeListener(e -> refreshQuoteButton());
-        carRentalCheckBox.addValueChangeListener(e -> refreshQuoteButton());
+        servicesGroup.setItems(FLIGHT, ACCOMMODATION, CAR_RENTAL);
+        servicesGroup.setValue(Set.of(FLIGHT, ACCOMMODATION, CAR_RENTAL));
+        servicesGroup.addValueChangeListener(e -> refreshQuoteButton());
+        servicesGroup.setWidthFull();
 
-        var optionsLayout = new HorizontalLayout(flightCheckBox, accommodationCheckBox, carRentalCheckBox);
-        optionsLayout.setWidth(500f, Unit.PIXELS);
-        optionsLayout.setAlignItems(Alignment.CENTER);
+        quoteButton.setIcon(VaadinIcon.SEARCH.create());
+        quoteButton.addClickListener(e -> requestQuote());
+        quoteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_CONTRAST);
 
-        quoteButton.addClickListener(e -> retuestQuote());
-        quoteButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-
+        bookButton.setIcon(VaadinIcon.SUITCASE.create());
         bookButton.addClickListener(e -> requestBooking());
         bookButton.setEnabled(false);
-        bookButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        bookButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY, ButtonVariant.LUMO_SUCCESS, ButtonVariant.LUMO_LARGE);
 
         var buttonsLayout = new HorizontalLayout(quoteButton, bookButton);
+        buttonsLayout.setJustifyContentMode(JustifyContentMode.CENTER);
+        buttonsLayout.setWidthFull();
 
-        flightsLayout.add(new H2("Flights"), flightOptionsGroup);
-        flightsLayout.setWidth(800f, Unit.PIXELS);
+        flightsLayout.add(new H3("Flights"), flightOptionsGroup);
+        flightsLayout.setPadding(false);
+        flightsLayout.setSpacing(false);
         flightsLayout.setVisible(false);
         flightOptionsGroup.setItems(flightQuotesProvider);
         flightOptionsGroup.setItemLabelGenerator(flight ->
@@ -139,8 +153,9 @@ public class MainView extends VerticalLayout {
         );
         flightOptionsGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
 
-        accommodationsLayout.add(new H2("Accommodations"), accommodationOptionsGroup);
-        accommodationsLayout.setWidth(800f, Unit.PIXELS);
+        accommodationsLayout.add(new H3("Accommodations"), accommodationOptionsGroup);
+        accommodationsLayout.setPadding(false);
+        accommodationsLayout.setSpacing(false);
         accommodationsLayout.setVisible(false);
         accommodationOptionsGroup.setItems(accommodationQuotesProvider);
         accommodationOptionsGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
@@ -151,9 +166,9 @@ public class MainView extends VerticalLayout {
                         accommodation.checkInDate(),
                         accommodation.checkOutDate()));
 
-
-        carRentalsLayout.add(new H2("Car rentals"), carRentalOptionsGroup);
-        carRentalsLayout.setWidth(800f, Unit.PIXELS);
+        carRentalsLayout.add(new H3("Car rentals"), carRentalOptionsGroup);
+        carRentalsLayout.setPadding(false);
+        carRentalsLayout.setSpacing(false);
         carRentalsLayout.setVisible(false);
         carRentalOptionsGroup.setItems(carRentalQuotesProvider);
         carRentalOptionsGroup.addThemeVariants(RadioGroupVariant.LUMO_VERTICAL);
@@ -173,19 +188,23 @@ public class MainView extends VerticalLayout {
 
         quoteLayout.add(flightsLayout, accommodationsLayout, carRentalsLayout);
         quoteLayout.setVisible(false);
+        quoteLayout.setPadding(false);
 
         bookingLayout.setVisible(false);
 
-        add(title,
-                travelCitiesLayout,
-                travelDatesLayout,
-                optionsLayout,
+        var content = new VerticalLayout();
+        content.setMaxWidth("960px");
+
+        content.add(title,
+                travelForm,
+                servicesGroup,
                 buttonsLayout,
                 quoteLayout,
                 bookingLayout);
+        add(content);
     }
 
-    private void retuestQuote() {
+    private void requestQuote() {
         resetQuotes();
         sendQuoteRequest();
     }
@@ -196,15 +215,15 @@ public class MainView extends VerticalLayout {
 
         quoteLayout.setVisible(true);
 
-        flightsLayout.setVisible(flightCheckBox.getValue());
+        flightsLayout.setVisible(isFlightSelected());
         flightQuotes.clear();
         flightQuotesProvider.refreshAll();
 
-        accommodationsLayout.setVisible(accommodationCheckBox.getValue());
+        accommodationsLayout.setVisible(isAccommodationSelected());
         accommodationQuotes.clear();
         accommodationQuotesProvider.refreshAll();
 
-        carRentalsLayout.setVisible(carRentalCheckBox.getValue());
+        carRentalsLayout.setVisible(isCarRentalSelected());
         carRentalQuotes.clear();
         carRentalQuotesProvider.refreshAll();
     }
@@ -237,9 +256,9 @@ public class MainView extends VerticalLayout {
 
         var quoteRequest = QuoteRequestDTO.newBuilder()
                 .quoteId(quoteId)
-                .flight(flightCheckBox.getValue() ? flight : null)
-                .accommodation(accommodationCheckBox.getValue() ? accommodation : null)
-                .carRental(carRentalCheckBox.getValue() ? carRental : null)
+                .flight(isFlightSelected() ? flight : null)
+                .accommodation(isAccommodationSelected() ? accommodation : null)
+                .carRental(isCarRentalSelected() ? carRental : null)
                 .build();
 
         var ui = UI.getCurrent();
@@ -251,9 +270,9 @@ public class MainView extends VerticalLayout {
     private void addQuote(QuoteResponseDTO quoteResponseDTO) {
         if (Boolean.TRUE.equals(quoteResponseDTO.timedOut())) {
             var allTypesReceived =
-                    (!flightCheckBox.getValue() || !flightQuotes.isEmpty()) &&
-                    (!accommodationCheckBox.getValue() || !accommodationQuotes.isEmpty()) &&
-                    (!carRentalCheckBox.getValue() || !carRentalQuotes.isEmpty());
+                    (!isFlightSelected() || !flightQuotes.isEmpty()) &&
+                    (!isAccommodationSelected() || !accommodationQuotes.isEmpty()) &&
+                    (!isCarRentalSelected() || !carRentalQuotes.isEmpty());
             if (!allTypesReceived) {
                 Notification.show("Quote request timed out. Try again.", 5000, Notification.Position.MIDDLE);
             }
@@ -391,10 +410,7 @@ public class MainView extends VerticalLayout {
     }
 
     private void refreshQuoteButton() {
-        quoteButton.setEnabled(
-                flightCheckBox.getValue() ||
-                        accommodationCheckBox.getValue() ||
-                        carRentalCheckBox.getValue());
+        quoteButton.setEnabled(!servicesGroup.getValue().isEmpty());
     }
 
     private void refreshBookButton() {
@@ -402,5 +418,17 @@ public class MainView extends VerticalLayout {
                 ((flightsLayout.isVisible() && flightOptionsGroup.getValue() != null) || !flightsLayout.isVisible()) &&
                         ((accommodationsLayout.isVisible() && accommodationOptionsGroup.getValue() != null) || !accommodationsLayout.isVisible()) &&
                         ((carRentalsLayout.isVisible() && carRentalOptionsGroup.getValue() != null) || !carRentalsLayout.isVisible()));
+    }
+
+    private boolean isFlightSelected() {
+        return servicesGroup.getValue().contains(FLIGHT);
+    }
+
+    private boolean isAccommodationSelected() {
+        return servicesGroup.getValue().contains(ACCOMMODATION);
+    }
+
+    private boolean isCarRentalSelected() {
+        return servicesGroup.getValue().contains(CAR_RENTAL);
     }
 }

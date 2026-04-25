@@ -34,14 +34,26 @@ services:
       kafka-topics --bootstrap-server kafka:29092 --list
 
       echo -e 'Creating kafka topics'
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-commands --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-responses --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-commands --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-responses --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-commands-dlq --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic quote-responses-dlq --replication-factor 1 --partitions 1
-      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-commands-dlq --replication-factor 1 --partitions 1
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic booking-responses-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic flight-quote-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic accommodation-quote-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic car-rental-quote-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic flight-booking-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic accommodation-booking-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic car-rental-booking-requests --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic flight-quote-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic accommodation-quote-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic car-rental-quote-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic flight-booking-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic accommodation-booking-requests-dlq --replication-factor 1 --partitions 1
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic car-rental-booking-requests-dlq --replication-factor 1 --partitions 1
 
       echo -e 'Successfully created the following topics:'
       kafka-topics --bootstrap-server kafka:29092 --list
@@ -104,6 +116,16 @@ services:
     depends_on:
       - init-kafka
 
+  orchestrator-service:
+    build:
+      context: besttravel-orchestrator-service
+      dockerfile: ../Dockerfile
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT: http://jaeger-all-in-one:4317
+    depends_on:
+      - init-kafka
+
   front-bff:
     build:
       context: besttravel-front-bff
@@ -118,3 +140,4 @@ services:
       - accommodations-service
       - car-rental-service
       - booking-service
+      - orchestrator-service

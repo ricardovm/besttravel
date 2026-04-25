@@ -1,10 +1,10 @@
-FROM mcr.microsoft.com/openjdk/jdk:25-ubuntu AS build
+FROM eclipse-temurin:25-jdk-ubi10-minimal AS build
 
 WORKDIR /build
 
 COPY . /build
 
-RUN ./mvnw package -Pproduction
+RUN ./mvnw package -e
 
 FROM registry.access.redhat.com/ubi9/openjdk-25:latest
 
@@ -20,4 +20,3 @@ EXPOSE 8080
 USER 185
 ENV JAVA_OPTS="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
-

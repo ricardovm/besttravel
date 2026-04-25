@@ -30,11 +30,6 @@ public class CarRentalQuoteService {
     CarRentalCompanyClient carRentalCompanyClient;
 
     public void quoteRequest(@ObservesAsync QuoteRequestDTO quoteRequest) {
-        if (quoteRequest.carRental() == null) {
-            Log.debug(">> " + quoteRequest.quoteId() + " - No car rental information");
-            return;
-        }
-
         Log.infov(">> {0}", quoteRequest);
 
         quote(quoteRequest);

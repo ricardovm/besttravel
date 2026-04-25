@@ -20,11 +20,6 @@ public class CarRentalBookingService {
     CarRentalCompanyClient carRentalCompanyClient;
 
     public void bookingRequest(@ObservesAsync BookingRequestDTO bookingRequest) {
-        if (bookingRequest.carRental() == null) {
-            Log.debug(">> " + bookingRequest.quoteId() + " - No car rental information");
-            return;
-        }
-
         Log.infov(">> {0}", bookingRequest);
 
         book(bookingRequest);

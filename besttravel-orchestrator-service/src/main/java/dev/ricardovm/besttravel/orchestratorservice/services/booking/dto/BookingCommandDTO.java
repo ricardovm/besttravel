@@ -1,4 +1,4 @@
-package dev.ricardovm.besttravel.orchestratorservice.booking.dto;
+package dev.ricardovm.besttravel.orchestratorservice.services.booking.dto;
 
 public record BookingCommandDTO(
         String bookingId,

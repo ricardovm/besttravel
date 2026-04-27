@@ -1,9 +1,9 @@
-package dev.ricardovm.besttravel.orchestratorservice.quote;
+package dev.ricardovm.besttravel.orchestratorservice.external.messaging.quote;
 
-import dev.ricardovm.besttravel.orchestratorservice.quote.dto.AccommodationQuoteRequest;
-import dev.ricardovm.besttravel.orchestratorservice.quote.dto.CarRentalQuoteRequest;
-import dev.ricardovm.besttravel.orchestratorservice.quote.dto.FlightQuoteRequest;
-import dev.ricardovm.besttravel.orchestratorservice.quote.dto.QuoteCommandDTO;
+import dev.ricardovm.besttravel.orchestratorservice.services.quote.dto.AccommodationQuoteRequest;
+import dev.ricardovm.besttravel.orchestratorservice.services.quote.dto.CarRentalQuoteRequest;
+import dev.ricardovm.besttravel.orchestratorservice.services.quote.dto.FlightQuoteRequest;
+import dev.ricardovm.besttravel.orchestratorservice.services.quote.dto.QuoteCommandDTO;
 import io.quarkus.logging.Log;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Event;

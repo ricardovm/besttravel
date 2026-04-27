@@ -1,4 +1,4 @@
-package dev.ricardovm.besttravel.orchestratorservice.quote;
+package dev.ricardovm.besttravel.orchestratorservice.external.messaging.quote;
 
 import io.quarkus.logging.Log;
 import io.smallrye.reactive.messaging.kafka.api.IncomingKafkaRecordMetadata;

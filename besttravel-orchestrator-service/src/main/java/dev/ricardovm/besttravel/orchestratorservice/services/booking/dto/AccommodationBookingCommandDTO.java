@@ -1,4 +1,4 @@
-package dev.ricardovm.besttravel.orchestratorservice.booking.dto;
+package dev.ricardovm.besttravel.orchestratorservice.services.booking.dto;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

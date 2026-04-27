@@ -24,48 +24,7 @@ This project is a demo of a travel agency application. It is composed of some mi
 
 ## Architecture
 
-```mermaid
-flowchart TD
-    User(["User"])
-    BFF["Front / BFF"]
-
-    subgraph Kafka
-        QC([quote-commands])
-        BC([booking-commands])
-        FQR([flight-quote-requests])
-        AQR([accommodation-quote-requests])
-        CQR([car-rental-quote-requests])
-        FBR([flight-booking-requests])
-        ABR([accommodation-booking-requests])
-        CBR([car-rental-booking-requests])
-        QR([quote-responses])
-        BR([booking-responses])
-    end
-
-    subgraph Services
-        Orch["orchestrator-service"]
-        Flights["flights-service"]
-        Acc["accommodations-service"]
-        Car["car-rental-service"]
-        Book["booking-service"]
-    end
-
-    Ext[("External\nCompanies APIs")]
-    DB[("Storage")]
-
-    User --> BFF
-    BFF --> QC & BC
-    QC & BC --> Orch
-    BC --> Book
-    Orch --> FQR & AQR & CQR & FBR & ABR & CBR
-    FQR & FBR --> Flights
-    AQR & ABR --> Acc
-    CQR & CBR --> Car
-    Flights & Acc & Car --> QR & BR
-    QR & BR --> BFF
-    Flights & Acc & Car --> Ext
-    Book --> DB
-```
+![Architecture](docs/architecture.png)
 
 ## Technologies
 

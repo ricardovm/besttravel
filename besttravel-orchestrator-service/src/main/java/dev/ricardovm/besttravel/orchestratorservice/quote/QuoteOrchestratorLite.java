@@ -22,16 +22,19 @@ public class QuoteOrchestratorLite {
     @Inject
     Event<CarRentalQuoteRequest> carRentalEvent;
 
-    public void route(@ObservesAsync QuoteCommandDTO cmd) {
-        Log.infov(">> routing quoteId={0}", cmd.quoteId());
-        if (cmd.flight() != null) {
-            flightEvent.fireAsync(new FlightQuoteRequest(cmd.quoteId(), cmd.flight()));
+    public void route(@ObservesAsync QuoteCommandDTO quoteCommand) {
+        Log.infov(">> routing quoteId={0}", quoteCommand.quoteId());
+
+        if (quoteCommand.flight() != null) {
+            flightEvent.fireAsync(new FlightQuoteRequest(quoteCommand.quoteId(), quoteCommand.flight()));
         }
-        if (cmd.accommodation() != null) {
-            accommodationEvent.fireAsync(new AccommodationQuoteRequest(cmd.quoteId(), cmd.accommodation()));
+
+        if (quoteCommand.accommodation() != null) {
+            accommodationEvent.fireAsync(new AccommodationQuoteRequest(quoteCommand.quoteId(), quoteCommand.accommodation()));
         }
-        if (cmd.carRental() != null) {
-            carRentalEvent.fireAsync(new CarRentalQuoteRequest(cmd.quoteId(), cmd.carRental()));
+
+        if (quoteCommand.carRental() != null) {
+            carRentalEvent.fireAsync(new CarRentalQuoteRequest(quoteCommand.quoteId(), quoteCommand.carRental()));
         }
     }
 }

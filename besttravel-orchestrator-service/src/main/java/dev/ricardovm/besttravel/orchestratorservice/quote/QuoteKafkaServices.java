@@ -34,23 +34,25 @@ public class QuoteKafkaServices {
     Emitter<CarRentalQuoteRequest> carRentalEmitter;
 
     @Incoming("quote-commands")
-    public CompletionStage<Void> receiveCommand(QuoteCommandDTO cmd) {
-        Log.infov(">> {0}", cmd);
-        return commandEvent.fireAsync(cmd).thenApply(e -> null);
+    public CompletionStage<Void> receiveCommand(QuoteCommandDTO command) {
+        Log.infov(">> {0}", command);
+        return commandEvent
+                .fireAsync(command)
+                .thenApply(e -> null);
     }
 
-    public void sendFlightQuoteRequest(@ObservesAsync FlightQuoteRequest req) {
-        Log.infov("<< {0}", req);
-        flightEmitter.send(req);
+    public void sendFlightQuoteRequest(@ObservesAsync FlightQuoteRequest request) {
+        Log.infov("<< {0}", request);
+        flightEmitter.send(request);
     }
 
-    public void sendAccommodationQuoteRequest(@ObservesAsync AccommodationQuoteRequest req) {
-        Log.infov("<< {0}", req);
-        accommodationEmitter.send(req);
+    public void sendAccommodationQuoteRequest(@ObservesAsync AccommodationQuoteRequest request) {
+        Log.infov("<< {0}", request);
+        accommodationEmitter.send(request);
     }
 
-    public void sendCarRentalQuoteRequest(@ObservesAsync CarRentalQuoteRequest req) {
-        Log.infov("<< {0}", req);
-        carRentalEmitter.send(req);
+    public void sendCarRentalQuoteRequest(@ObservesAsync CarRentalQuoteRequest request) {
+        Log.infov("<< {0}", request);
+        carRentalEmitter.send(request);
     }
 }

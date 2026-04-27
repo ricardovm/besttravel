@@ -22,16 +22,19 @@ public class BookingOrchestratorLite {
     @Inject
     Event<CarRentalBookingRequest> carRentalEvent;
 
-    public void route(@ObservesAsync BookingCommandDTO cmd) {
-        Log.infov(">> routing bookingId={0}", cmd.bookingId());
-        if (cmd.flight() != null) {
-            flightEvent.fireAsync(new FlightBookingRequest(cmd.bookingId(), cmd.quoteId(), cmd.flight()));
+    public void route(@ObservesAsync BookingCommandDTO bookingCommand) {
+        Log.infov(">> routing bookingId={0}", bookingCommand.bookingId());
+
+        if (bookingCommand.flight() != null) {
+            flightEvent.fireAsync(new FlightBookingRequest(bookingCommand.bookingId(), bookingCommand.quoteId(), bookingCommand.flight()));
         }
-        if (cmd.accommodation() != null) {
-            accommodationEvent.fireAsync(new AccommodationBookingRequest(cmd.bookingId(), cmd.quoteId(), cmd.accommodation()));
+
+        if (bookingCommand.accommodation() != null) {
+            accommodationEvent.fireAsync(new AccommodationBookingRequest(bookingCommand.bookingId(), bookingCommand.quoteId(), bookingCommand.accommodation()));
         }
-        if (cmd.carRental() != null) {
-            carRentalEvent.fireAsync(new CarRentalBookingRequest(cmd.bookingId(), cmd.quoteId(), cmd.carRental()));
+
+        if (bookingCommand.carRental() != null) {
+            carRentalEvent.fireAsync(new CarRentalBookingRequest(bookingCommand.bookingId(), bookingCommand.quoteId(), bookingCommand.carRental()));
         }
     }
 }

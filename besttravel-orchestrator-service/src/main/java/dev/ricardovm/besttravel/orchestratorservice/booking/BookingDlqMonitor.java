@@ -22,6 +22,7 @@ public class BookingDlqMonitor {
                 .map(m -> m.getHeaders().lastHeader("dead-letter-reason"))
                 .map(h -> new String(h.value()))
                 .orElse("unknown");
+
         Log.errorf("Message in DLQ [%s]. Reason: %s. Payload: %s", topic, reason, message.getPayload());
     }
 }

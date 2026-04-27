@@ -34,23 +34,25 @@ public class BookingKafkaServices {
     Emitter<CarRentalBookingRequest> carRentalEmitter;
 
     @Incoming("booking-commands")
-    public CompletionStage<Void> receiveCommand(BookingCommandDTO cmd) {
-        Log.infov(">> {0}", cmd);
-        return commandEvent.fireAsync(cmd).thenApply(e -> null);
+    public CompletionStage<Void> receiveCommand(BookingCommandDTO command) {
+        Log.infov(">> {0}", command);
+        return commandEvent
+                .fireAsync(command)
+                .thenApply(e -> null);
     }
 
-    public void sendFlightBookingRequest(@ObservesAsync FlightBookingRequest req) {
-        Log.infov("<< {0}", req);
-        flightEmitter.send(req);
+    public void sendFlightBookingRequest(@ObservesAsync FlightBookingRequest request) {
+        Log.infov("<< {0}", request);
+        flightEmitter.send(request);
     }
 
-    public void sendAccommodationBookingRequest(@ObservesAsync AccommodationBookingRequest req) {
-        Log.infov("<< {0}", req);
-        accommodationEmitter.send(req);
+    public void sendAccommodationBookingRequest(@ObservesAsync AccommodationBookingRequest request) {
+        Log.infov("<< {0}", request);
+        accommodationEmitter.send(request);
     }
 
-    public void sendCarRentalBookingRequest(@ObservesAsync CarRentalBookingRequest req) {
-        Log.infov("<< {0}", req);
-        carRentalEmitter.send(req);
+    public void sendCarRentalBookingRequest(@ObservesAsync CarRentalBookingRequest request) {
+        Log.infov("<< {0}", request);
+        carRentalEmitter.send(request);
     }
 }
